@@ -4,8 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 
 import {
-  GET,
-  POST
+  dispense,
+  checkStatus,
+  wait,
+  fetchAll,
 } from './mock-api'
 
 import {
@@ -16,75 +18,83 @@ import {
   Col,
 } from 'react-bootstrap'
 
-const CoffeeBot = () => {
+import { useArray } from 'react-hookedup'
+
+const CoffeeBot = ({beverages}) => {
   const welcomeMessage = `Welcome, Player 1! Click up to 3 items to place your order.`
   const loadingMessage = `Loading....`
-  const readyMessage = `Yay. Click Confirm to finalize your order!`
+  const initialMessage = `Yay. Click Confirm to finalize your order!`
   const limitedSelectionMessage = 'No more than 3 items available. Click Confirm to finalize your order!'
 
   const [isLoading, updateLoading] = useState(true)
-  const [cart, updateCart] = useState([])
-  const [items, setItems] = useState([])
-  const [message, setMessage] = useState(readyMessage)
+  const [isDisabled, updateDisabled] = useState(false)
+  const [items, setItems] = useState(beverages)
+  const [message, setMessage] = useState(initialMessage)
+  const {
+    add,
+    clear,
+    value: cart,
+    setValue: updateCart,
+  } = useArray([])
 
-  /**
-   * TODO:
-   * - allow unchecking selected items: 3 or less.
-   */
-  const addToCart = (id, {isSelected}) => {
+  const addToCart = (id) => {
+
+    if ( isDisabled ) {
+      return setMessage('Dispensing previous request. One moment...');
+    }
+
     let updatedList = [...cart];
+    let count = updatedList.length
 
-    if ( updatedList.length >= 2 ) {
+    if ( updatedList.includes(id) ) {
+      updatedList.splice(updatedList.indexOf(id), 1)
+      count--
+      updateCart(updatedList)
+    } else if ( count < 3 ) {
+      count++
+      add(id)
+    }
+
+    if ( count > 2 ) {
       setMessage(limitedSelectionMessage)
     } else {
-      setMessage(readyMessage)
+      setMessage(initialMessage)
     }
-
-    if ( updatedList.length <= 2 ) {
-      updatedList = [...cart, id];
-    }
-
-    updateCart(unique(updatedList))
   }
 
-  const unique = (a) => a.filter((item, i, ar) => ar.indexOf(item) === i)
-  const wait = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds))
+  const isSelected = (uuid) => cart.includes(uuid)
+  const isChecked = (uuid) => isSelected(uuid) ? 'selected' : 'not-selected'
 
-  const isSelected = (i) => cart.includes(i) ? true : false
-  const isChecked = (item) => isSelected(item) ? 'selected' : 'not-selected'
-
+  /**
+   * TODO: replace this with actual API.
+   * Send the confirmation to the API and return a 200 OK.
+   */
   const confirm = async(cart) => {
-    console.log('confirm', cart)
+    updateDisabled(true)
     setMessage('Confirming...')
+    
+    // post to api
+    dispense(cart)
     await wait(1000)
     setMessage('Dispensing...')
+    
+    // trigger polling...
     await wait(1000)
     setMessage('Done!')
-    // await wait(500)
-    // reset()
+    updateDisabled(false)
   }
 
   const fetchItems = async () => {
     await wait(1000)
-    setItems(GET())
+    setItems(fetchAll())
   }
 
   const reset = async () => {
-    updateCart([])
+    clear()
     await fetchItems()
   }
 
-  useEffect(() => {
-    async function apiGet() {
-      updateLoading(true)
-      const response = await fetchItems()
-      updateLoading(false)
-
-      return response
-    }
-
-    apiGet()
-  }, [])
+  useEffect(() => updateLoading(false), [isLoading])
 
   return (
     <>
@@ -98,7 +108,7 @@ const CoffeeBot = () => {
         </Row>
         <Row className="mb-3">
           <Col>
-            <Button className={cart.length >= 1 ? 'ready' : 'disabled'} onClick={() => confirm(cart)}>Confirm</Button>
+            <Button className={! isDisabled && cart.length >= 1 ? 'ready' : 'disabled'} onClick={() => confirm(cart)}>Confirm</Button>
           </Col>
         </Row>
         <Row>
@@ -106,17 +116,14 @@ const CoffeeBot = () => {
             items.map(({uuid, url, title}) => (
               <Col key={uuid} lg={4}>
                 <a href={`#${uuid}`} onClick={(e) => {
-                  addToCart(uuid, {
-                    isSelected: isSelected(uuid),
-                  })
-
+                  addToCart(uuid)
                   return e.preventDefault()
                 }}>
                   <Card className={isChecked(uuid)}>
                     <Card.Body>
                       {isSelected(uuid) && <div className="checked"><FontAwesomeIcon icon={faCheckCircle} size="5x" color="#0db0bf" /></div>}
                       <Card.Img variant="top" src={url} />
-                      <Card.Title className="pt-3 mb-0">{title}</Card.Title>
+                      <Card.Title className="pt-3 mb-0 text-center">{title}</Card.Title>
                     </Card.Body>
                   </Card>
                 </a>
@@ -125,7 +132,7 @@ const CoffeeBot = () => {
         </Row>
         <Row>
           <Col>
-            <Button className={cart.length >= 1 ? 'ready' : 'disabled'} onClick={() => confirm(cart)}>Confirm</Button>
+            <Button className={! isDisabled && cart.length >= 1 ? 'ready' : 'disabled'} onClick={() => clear()}>Clear Selection</Button>
           </Col>
         </Row>
       </Container>

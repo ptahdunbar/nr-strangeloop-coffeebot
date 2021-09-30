@@ -9243,6 +9243,11 @@ react-fakers@^1.0.3-rc1:
     isomorphic-fetch "^3.0.0"
     prop-types "^15.7.2"
 
+react-hookedup@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/react-hookedup/-/react-hookedup-0.1.2.tgz#d9a92747e027086ae2fabc925f0a017820443960"
+  integrity sha512-S6UvMYJxp7elQO+EAui3vkPHfVnvaX8APOvpuIaaJyGIKScknSdDsB/Q2/yehh9tC/AWSzzdXpdrjC3D9hAESw==
+
 react-is@^16.3.2, react-is@^16.8.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
