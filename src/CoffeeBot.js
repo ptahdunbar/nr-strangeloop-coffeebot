@@ -3,7 +3,10 @@ import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 
-import faker from 'faker'
+import {
+  GET,
+  POST
+} from './mock-api'
 
 import {
   Card,
@@ -12,12 +15,6 @@ import {
   Row,
   Col,
 } from 'react-bootstrap'
-
-const MOCK_PAYLOAD_REPLACE_ME = () => Array.from({length: 10}, () => ({
-  uuid: faker.datatype.uuid(),
-  url: faker.image.imageUrl(),
-  title: faker.commerce.productName(),
-}))
 
 const CoffeeBot = () => {
   const welcomeMessage = `Welcome, Player 1! Click up to 3 items to place your order.`
@@ -68,23 +65,25 @@ const CoffeeBot = () => {
   }
 
   const fetchItems = async () => {
-    console.log('fetchItems')
-    updateLoading(true)
-    
     await wait(1000)
-
-    setItems(MOCK_PAYLOAD_REPLACE_ME())
-
-    updateLoading(false)
+    setItems(GET())
   }
 
-  const reset = () => {
+  const reset = async () => {
     updateCart([])
-    fetchItems()
+    await fetchItems()
   }
 
   useEffect(() => {
-    fetchItems()
+    async function apiGet() {
+      updateLoading(true)
+      const response = await fetchItems()
+      updateLoading(false)
+
+      return response
+    }
+
+    apiGet()
   }, [])
 
   return (
@@ -106,9 +105,13 @@ const CoffeeBot = () => {
             {! isLoading &&
             items.map(({uuid, url, title}) => (
               <Col key={uuid} lg={4}>
-                <a onClick={() => addToCart(uuid, {
-                  isSelected: isSelected(uuid),
-                })}>
+                <a href={`#${uuid}`} onClick={(e) => {
+                  addToCart(uuid, {
+                    isSelected: isSelected(uuid),
+                  })
+
+                  return e.preventDefault()
+                }}>
                   <Card className={isChecked(uuid)}>
                     <Card.Body>
                       {isSelected(uuid) && <div className="checked"><FontAwesomeIcon icon={faCheckCircle} size="5x" color="#0db0bf" /></div>}
