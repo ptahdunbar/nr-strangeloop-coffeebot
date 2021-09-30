@@ -1,0 +1,85 @@
+body {
+  background-color: #2c2c2c;
+}
+
+.logo {
+  height: 10vmin;
+  padding: 20px;
+}
+
+.drinkbot {
+  height: 14vmin;
+  padding: 20px;
+}
+
+.header .col {
+  align-self: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+#message {
+  background-color: #E7F7F9;
+}
+
+.btn {
+  background-color: #00838F;
+  width: 100%;
+}
+
+.btn:hover {
+  background-color: #006972;
+}
+
+.btn:focus {
+  background-color: #006972;
+  box-shadow: 0 0 0 0.1875rem rgb(10 176 191 / 30%);
+  outline: none;
+}
+
+.card {
+  margin-bottom: 40px;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: #006972;
+  color: #ffffff;
+}
+
+.checked {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 82%;
+  flex-direction: column;
+  align-items: center;
+  opacity: 70%;
+}
+
+.disabled {
+  background-color: #2c2c2c !important;
+  border-color: #2c2c2c !important;
+  cursor: pointer !important;
+}
+
+.ready {
+  background-color: #00838F;
+}
+
+@media screen and (max-width: 990px) {
+  .logo {
+    height: 6rem;
+  }
+  
+  .drinkbot {
+    height: 8rem;
+  }
+
+  .header .col {
+    text-align: center;
+  }
+}
