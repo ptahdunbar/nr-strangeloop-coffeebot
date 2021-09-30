@@ -21,10 +21,10 @@ import {
 import { useArray } from 'react-hookedup'
 
 const CoffeeBot = ({beverages}) => {
-  const welcomeMessage = `Welcome, Player 1! Click up to 3 items to place your order.`
+  const welcomeMessage = `Welcome, Player 1! Select up to 3 ingredients to place your order.`
   const loadingMessage = `Loading....`
   const initialMessage = `Yay. Click Confirm to finalize your order!`
-  const limitedSelectionMessage = 'No more than 3 items available. Click Confirm to finalize your order!'
+  const limitedSelectionMessage = 'No more than 3 ingredients available. Click Confirm to finalize your order!'
 
   const [isLoading, updateLoading] = useState(true)
   const [isDisabled, updateDisabled] = useState(false)
@@ -40,7 +40,7 @@ const CoffeeBot = ({beverages}) => {
   const addToCart = (id) => {
 
     if ( isDisabled ) {
-      return setMessage('Dispensing previous request. One moment...');
+      return setMessage('Arrgh. One moment...');
     }
 
     let updatedList = [...cart];
@@ -123,7 +123,7 @@ const CoffeeBot = ({beverages}) => {
                     <Card.Body>
                       {isSelected(uuid) && <div className="checked"><FontAwesomeIcon icon={faCheckCircle} size="5x" color="#0db0bf" /></div>}
                       <Card.Img variant="top" src={url} />
-                      <Card.Title className="pt-3 mb-0 text-center">{title}</Card.Title>
+                      <Card.Title className="p-3 mb-0 text-center">{title}</Card.Title>
                     </Card.Body>
                   </Card>
                 </a>
