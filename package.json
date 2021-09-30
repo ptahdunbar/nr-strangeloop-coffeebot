@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^12.1.10",
     "axios": "^0.21.4",
     "bootstrap": "5.1.1",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "faker": "^5.5.3",
     "react": "^17.0.2",
@@ -19,6 +20,7 @@
     "react-fakers": "^1.0.3-rc1",
     "react-hookedup": "^0.1.2",
     "react-scripts": "4.0.3",
+    "uuid": "^8.3.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {

@@ -1,35 +1,22 @@
-let express = require('express')
-let app = express()
-let PORT = 8000
+let axios = require('axios')
 
-let mockGetRequest = require('./mock-api')
+const baseURL = 'http://localhost:8000'
 
-app.use(express.json())
-
-app.get('/beverages', function (req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify(mockGetRequest()))
+const API = axios.create({
+    baseURL,
+    timeout: 3000,
 })
 
-app.get('/beverages/status/:id', function (req, res) {
-    // req.params.id
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify({
-        status: 200,
-        message: 'Done!'
-    }))
+const fetchAll = () => API.get('/beverages')
+const checkStatus = (id) => API.get(`/beverages/status/${id}`)
+const dispense = (ingredients = []) => API.post('/beverages/dispense/', {
+    ingredients,
 })
 
-app.post('/beverages/dispense', function (req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify({
-        status: 104,
-        message: 'Despensing...', 
-    }))
-})
-
-app.listen(PORT, function(err){
-    if (err) console.log(err)
-    
-    console.log("Server listening on PORT", PORT)
-})
+module.exports = {
+    baseURL,
+    API,
+    fetchAll,
+    checkStatus,
+    dispense
+}

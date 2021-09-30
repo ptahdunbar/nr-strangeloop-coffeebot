@@ -8,7 +8,9 @@ import {
   checkStatus,
   wait,
   fetchAll,
-} from './mock-api'
+  API,
+  baseURL,
+} from './api'
 
 import {
   Card,
@@ -18,9 +20,11 @@ import {
   Col,
 } from 'react-bootstrap'
 
+import useInterval from './useInterval'
+
 import { useArray } from 'react-hookedup'
 
-const CoffeeBot = ({beverages}) => {
+const CoffeeBot = () => {
   const welcomeMessage = `Welcome, Player 1! Select up to 3 ingredients to place your order.`
   const loadingMessage = `Loading....`
   const initialMessage = `Yay. Click Confirm to finalize your order!`
@@ -28,7 +32,8 @@ const CoffeeBot = ({beverages}) => {
 
   const [isLoading, updateLoading] = useState(true)
   const [isDisabled, updateDisabled] = useState(false)
-  const [items, setItems] = useState(beverages)
+  const [isDispensing, updateDispensing] = useState(false)
+  const [items, setItems] = useState([])
   const [message, setMessage] = useState(initialMessage)
   const {
     add,
@@ -74,14 +79,12 @@ const CoffeeBot = ({beverages}) => {
     setMessage('Confirming...')
     
     // post to api
-    dispense(cart)
-    await wait(1000)
-    setMessage('Dispensing...')
-    
-    // trigger polling...
-    await wait(1000)
-    setMessage('Done!')
-    updateDisabled(false)
+    dispense(cart).then(({data}) => {
+      setMessage('Dispensing...')
+      updateDispensing(data.id)
+    }).catch(() => {
+      updateDisabled(false)
+    })
   }
 
   const fetchItems = async () => {
@@ -89,12 +92,31 @@ const CoffeeBot = ({beverages}) => {
     setItems(fetchAll())
   }
 
-  const reset = async () => {
-    clear()
-    await fetchItems()
-  }
+  useEffect(() => {
+    fetchAll()
+      .then(({data}) => {
+        updateLoading(false)
+        setItems(data)
+      })
+      .catch(err => alert(err))
+  }, [!isLoading])
 
-  useEffect(() => updateLoading(false), [isLoading])
+  useInterval(
+    () => {
+      checkStatus(isDispensing)
+      .then((res) => {
+        setMessage(res.data.message)
+        if (res.data.status == 200) {
+          updateDispensing(false)
+          updateDisabled(false)
+          setMessage('Done!')
+        }
+      })
+      .catch(err => alert(err))
+    },
+    // Delay in milliseconds or null to stop it
+    isDispensing ? 1000 : null,
+  )
 
   return (
     <>
@@ -111,7 +133,7 @@ const CoffeeBot = ({beverages}) => {
             <Button className={! isDisabled && cart.length >= 1 ? 'ready' : 'disabled'} onClick={() => confirm(cart)}>Confirm</Button>
           </Col>
         </Row>
-        <Row>
+        <Row className={ ! isDisabled ? '' : 'disabled'}>
             {! isLoading &&
             items.map(({uuid, url, title}) => (
               <Col key={uuid} lg={4}>

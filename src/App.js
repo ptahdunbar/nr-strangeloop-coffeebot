@@ -3,8 +3,6 @@ import React, { useEffect } from 'react'
 import logo from './assets/NewRelic-logo-bug-w.svg'
 import drinkbot from './assets/drinkbot.svg'
 
-import { fetchAll } from './mock-api'
-
 import {
   Container,
   Row,
@@ -33,7 +31,7 @@ const App = () => {
         </Container>
       </Container>
       <Container fluid>
-        <CoffeeBot beverages={fetchAll()} />
+        <CoffeeBot />
       </Container>
     </>
   )
