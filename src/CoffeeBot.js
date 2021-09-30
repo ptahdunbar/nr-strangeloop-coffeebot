@@ -10,7 +10,7 @@ import {
   fetchAll,
   API,
   baseURL,
-} from './api'
+} from './Api'
 
 import {
   Card,
